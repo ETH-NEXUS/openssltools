@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIR=$(cd $(dirname $0); pwd -P)
-source ${DIR}/config.sh
+source ${DIR}/conf/config.sh
 
 function usage {
 	echo "USAGE:"
@@ -29,7 +29,7 @@ if [ "$1" == "help" -o $# -lt 1 ]; then
 fi
 
 if [ "$1" == "list" -a "$2" == "certs" ]; then
-	ls -1 ${CA_INT}/certs	
+	ls -1 ${CA_INT}/certs
 fi
 
 if [ "$1" == "verify" -a "$2" != "" ]; then
@@ -93,7 +93,7 @@ if [ "$1" == "create" -a "$2" == "root" ]; then
 	touch index.txt
 	echo 1000 > serial
 
-	cp ${DIR}/root_ca.cnf openssl.cnf
+	cp ${DIR}/conf/root_ca.cnf openssl.cnf
     sed -i.bak "s#_COUNTRY_#${COUNTRY}#g" openssl.cnf
     sed -i.bak "s#_STATE_#${STATE}#g" openssl.cnf
     sed -i.bak "s#_LOCALITY_#${LOCALITY}#g" openssl.cnf
@@ -104,16 +104,17 @@ if [ "$1" == "create" -a "$2" == "root" ]; then
 
 	${OPENSSL} genrsa -aes256 -out private/ca.key.pem 4096
 	chmod 400 private/ca.key.pem
-	
+
 	${OPENSSL} req -config openssl.cnf \
       -key private/ca.key.pem \
       -new -x509 -days 7300 -sha256 -extensions v3_ca \
-      -out certs/ca.cert.pem 
+      -out certs/ca.cert.pem
 
 	chmod 444 certs/ca.cert.pem
 
 	${OPENSSL} x509 -noout -text -in certs/ca.cert.pem
 fi
+
 
 if [ "$1" == "create" -a "$2" == "int" ]; then
 	if [ -d ${CA_INT} ]; then
@@ -127,10 +128,10 @@ if [ "$1" == "create" -a "$2" == "int" ]; then
 	touch index.txt
 	touch index.txt.attr
 	echo 1000 > serial
-	
+
 	echo 1000 > ${CA_INT}/crlnumber
 
-	cp ${DIR}/int_ca.cnf openssl.cnf
+	cp ${DIR}/conf/int_ca.cnf openssl.cnf
     sed -i.bak "s#_COUNTRY_#${COUNTRY}#g" openssl.cnf
     sed -i.bak "s#_STATE_#${STATE}#g" openssl.cnf
     sed -i.bak "s#_LOCALITY_#${LOCALITY}#g" openssl.cnf
@@ -138,7 +139,7 @@ if [ "$1" == "create" -a "$2" == "int" ]; then
     sed -i.bak "s#_COMPANY_#${COMPANY}#g" openssl.cnf
     sed -i.bak "s#_EMAIL_#${EMAIL}#g" openssl.cnf
 	#vi openssl.cnf
-	
+
 	${OPENSSL} genrsa -aes256 \
       -out private/${INT_NAME}.key.pem 4096
 
@@ -146,7 +147,7 @@ if [ "$1" == "create" -a "$2" == "int" ]; then
 
 	${OPENSSL} req -config openssl.cnf -new -sha256 \
       -key private/${INT_NAME}.key.pem \
-      -out csr/${INT_NAME}.csr.pem	
+      -out csr/${INT_NAME}.csr.pem
 
 	cd ${CA_ROOT}
 
@@ -154,7 +155,7 @@ if [ "$1" == "create" -a "$2" == "int" ]; then
       -days 3650 -notext -md sha256 \
       -in ${CA_INT}/csr/${INT_NAME}.csr.pem \
       -out ${CA_INT}/certs/${INT_NAME}.cert.pem
-	
+
 	chmod 444 ${CA_INT}/certs/${INT_NAME}.cert.pem
 
 	${OPENSSL} verify -CAfile certs/ca.cert.pem \
@@ -164,8 +165,10 @@ if [ "$1" == "create" -a "$2" == "int" ]; then
       certs/ca.cert.pem > ${CA_INT}/certs/${CHAIN_NAME}.cert.pem
 
 	chmod 444 ${CA_INT}/certs/${CHAIN_NAME}.cert.pem
-fi	
+fi
 
+
+#
 if [ "$1" == "create" -a "$2" == "server" -a "$3" != "" ]; then
 	SERVER="$3"
 	EXT_OPT="-extensions server_cert"

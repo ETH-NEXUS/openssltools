@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIR=$(cd $(dirname $0); pwd -P)
-source ${DIR}/config.sh
+source ${DIR}/conf/config.sh
 
 function usage {
 	echo "USAGE:"
@@ -18,8 +18,8 @@ function usage {
 	echo "$(basename $0) fingerprint cert                  : get fingerprint of cert"
 	echo "$(basename $0) p12info p12                       : get info/content about p12 file"
 	echo "$(basename $0) p12unpack p12                     : get key and certs from p12 file"
-  	echo "$(basename $0) cer2crt cer                       : convert a cer to crt" 
-  	echo "$(basename $0) check_revoc cert int_cert         : check the revocation status of a cert" 
+  	echo "$(basename $0) cer2crt cer                       : convert a cer to crt"
+  	echo "$(basename $0) check_revoc cert int_cert         : check the revocation status of a cert"
 	echo "$(basename $0) help"
 }
 
@@ -51,30 +51,30 @@ elif [ "$1" == "purpose" -a "$2" != "" ]; then
 	${OPENSSL} x509 -noout -purpose -in "${CERT}" | less
 elif [ "$1" == "info" -a "$2" != "" ]; then
 	CERT="$2"
-	while read line 
+	while read line
 	do
 		if echo $line | grep "^Issuer:" 2>&1 >/dev/null; then
-			ISSUER=$(echo ${line} | sed -E 's/Issuer: (.*)/\1/') 
+			ISSUER=$(echo ${line} | sed -E 's/Issuer: (.*)/\1/')
 		fi
 		if echo $line | grep "^Subject:" 2>&1 >/dev/null; then
-			SUBJECT=$(echo ${line} | sed -E 's/Subject: (.*)/\1/') 
+			SUBJECT=$(echo ${line} | sed -E 's/Subject: (.*)/\1/')
 		fi
 		if echo $line | grep "^Not Before:" 2>&1 >/dev/null; then
-			FROM=$(echo ${line} | sed -E 's/Not Before: (.*)/\1/') 
+			FROM=$(echo ${line} | sed -E 's/Not Before: (.*)/\1/')
 		fi
 		if echo $line | grep "^Not After :" 2>&1 >/dev/null; then
-			TO=$(echo ${line} | sed -E 's/Not After : (.*)/\1/') 
+			TO=$(echo ${line} | sed -E 's/Not After : (.*)/\1/')
 		fi
 	done < <(${OPENSSL} x509 -noout -text -in "${CERT}" | sed -E 's,^[[:space:]]+,,')
-	printf "%-11s: %s\n" "Issuer" "${ISSUER}" 
-	printf "%-11s: %s\n" "Subject" "${SUBJECT}" 
+	printf "%-11s: %s\n" "Issuer" "${ISSUER}"
+	printf "%-11s: %s\n" "Subject" "${SUBJECT}"
 	if [ "${ISSUER}" == "${SUBJECT}" ]; then
 		printf "%-11s: %s\n" "Selfsigned" "Yes"
 	else
 		printf "%-11s: %s\n" "Selfsigned" "No"
 	fi
-	printf "%-11s: %s\n" "Valid from" "${FROM}" 
-	printf "%-11s: %s\n" "Valid to" "${TO}" 
+	printf "%-11s: %s\n" "Valid from" "${FROM}"
+	printf "%-11s: %s\n" "Valid to" "${TO}"
 elif [ "$1" == "verify" -a "$2" != "" -a "$3" != "" ]; then
 	CACERT="$2"
 	CERT="$3"

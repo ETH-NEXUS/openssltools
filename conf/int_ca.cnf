@@ -77,9 +77,9 @@ organizationalUnitName          = Organizational Unit Name
 commonName                      = Common Name
 emailAddress                    = Email Address
 
+
 # Optionally, specify some defaults.
-# Optionally, specify some defaults.
-countryName_default             = _COUNTRY_
+countryName_default             = CH
 stateOrProvinceName_default     = _STATE_
 localityName_default            = _LOCALITY_
 0.organizationName_default      = _COMPANY_
@@ -129,7 +129,7 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer:always
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
-subjectAltName = IP:127.0.0.1,DNS:ssb
+subjectAltName = DNS:www.hostname.com,DNS:hostname.com
 
 [ client_cert ]
 # Extensions for server certificates (`man x509v3_config`).
